@@ -1,0 +1,68 @@
+{
+  "name": "certificate-studio",
+  "productName": "Certificate Studio",
+  "version": "1.0.0",
+  "description": "Offline batch certificate generator",
+  "author": "Yousef Yasin",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "com.yousefyasin.certificatestudio",
+    "productName": "Certificate Studio",
+    "copyright": "Copyright © 2026 Yousef Yasin",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "index.html",
+      "css/**",
+      "js/**",
+      "fonts/**",
+      "vendor/**",
+      "assets/**",
+      "samples/**",
+      "electron/**",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Certificate Studio",
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "artifactName": "Certificate-Studio-Setup-${version}-x64.${ext}"
+    },
+    "portable": {
+      "artifactName": "Certificate-Studio-${version}-x64-Portable.${ext}"
+    }
+  },
+  "devDependencies": {
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3"
+  }
+}
