@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Everything runs locally: network requests (fetch/XHR/WebSocket) are blocked outright. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' blob: data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Certificate Studio</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%231F4D3A'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23C9A56A' stroke-width='1.5' stroke-dasharray='2 2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="fonts/fonts.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 15v3.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15"/></symbol>
+      <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7.5A1.5 1.5 0 0 0 6 4.5v15A1.5 1.5 0 0 0 7.5 21h9a1.5 1.5 0 0 0 1.5-1.5V7zM14 3v4h4"/></symbol>
+      <symbol id="i-sheet" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M4 9.5h16M4 14.5h16M10 4v16"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/></symbol>
+      <symbol id="i-left" viewBox="0 0 24 24"><path d="M14.5 6 8.5 12l6 6"/></symbol>
+      <symbol id="i-right" viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6"/></symbol>
+      <symbol id="i-al-left" viewBox="0 0 24 24"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></symbol>
+      <symbol id="i-al-center" viewBox="0 0 24 24"><path d="M4 6h16M7 10h10M4 14h16M7 18h10"/></symbol>
+      <symbol id="i-al-right" viewBox="0 0 24 24"><path d="M4 6h16M10 10h10M4 14h16M10 18h10"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="1.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.75"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-center" viewBox="0 0 24 24"><path d="M12 3v18M7 8h10v8H7z"/></symbol>
+      <symbol id="i-stack" viewBox="0 0 24 24"><path d="M8 3h9.5A1.5 1.5 0 0 1 19 4.5V17M5 6.5A1.5 1.5 0 0 1 6.5 5h8A1.5 1.5 0 0 1 16 6.5v13a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 19.5z"/></symbol>
+    </defs>
+  </svg>
+
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-seal" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="18" class="seal-fill"/>
+        <circle cx="20" cy="20" r="13.5" class="seal-ring"/>
+        <path d="M14 21.5l4 4 8-9" class="seal-mark"/>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-name">Certificate Studio</span>
+        <span class="brand-sub">Batch certificates, made on your machine</span>
+      </div>
+    </div>
+    <div class="privacy-pill" title="No uploads, no accounts, no tracking. Network access is blocked by the page itself.">
+      <svg class="ic"><use href="#i-lock"/></svg>
+      <span>Offline &amp; private</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar" aria-label="Settings">
+      <!-- 01 Template -->
+      <section class="panel">
+        <header class="panel-head"><span class="step">01</span><h2>Template</h2></header>
+        <div id="templateEmpty">
+          <button type="button" class="drop-tile" id="chooseTemplate">
+            <svg class="ic ic-lg"><use href="#i-upload"/></svg>
+            <strong>Upload a template</strong>
+            <span>PNG, JPG, WEBP, SVG or PDF — or drop it on the canvas</span>
+          </button>
+          <button type="button" class="link-btn" id="useSample">or start from the sample design</button>
+        </div>
+        <div id="templateInfo" hidden>
+          <div class="file-row">
+            <svg class="ic file-ic"><use href="#i-file"/></svg>
+            <div class="file-meta">
+              <strong id="tplName">—</strong>
+              <span id="tplMeta"></span>
+            </div>
+            <button type="button" class="btn btn-sm" id="replaceTemplate">Replace</button>
+          </div>
+          <label class="field" id="pdfPageField" hidden>
+            <span class="field-label">PDF page</span>
+            <select id="pdfPage"></select>
+          </label>
+        </div>
+        <input type="file" id="templateInput" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,image/svg+xml,application/pdf,.pdf" hidden>
+      </section>
+
+      <!-- 02 Recipients -->
+      <section class="panel">
+        <header class="panel-head">
+          <span class="step">02</span><h2>Recipients</h2>
+          <span class="badge" id="nameCount">0</span>
+        </header>
+        <textarea id="namesInput" spellcheck="false" rows="5" aria-label="Recipient names, one per line"
+          placeholder="One name per line&#10;Jane Doe&#10;أحمد محمد العلي"></textarea>
+        <div class="row gap-sm">
+          <button type="button" class="btn btn-sm" id="importBtn"><svg class="ic"><use href="#i-sheet"/></svg>Import Excel / CSV</button>
+          <button type="button" class="btn btn-sm btn-quiet" id="clearNames">Clear</button>
+        </div>
+        <ol class="name-list" id="nameList" aria-label="Recipients"></ol>
+        <input type="file" id="sheetInput" accept=".xlsx,.xls,.csv,.ods,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" hidden>
+      </section>
+
+      <!-- 03 Name style -->
+      <section class="panel">
+        <header class="panel-head"><span class="step">03</span><h2>Name style</h2></header>
+
+        <div class="field">
+          <span class="field-label">Typeface</span>
+          <div class="row gap-sm">
+            <select id="fontFamily" class="grow" aria-label="Typeface"></select>
+            <button type="button" class="btn btn-icon" id="addFont" title="Use your own font file (.ttf, .otf, .woff)" aria-label="Add font file"><svg class="ic"><use href="#i-plus"/></svg></button>
+          </div>
+          <input type="file" id="fontInput" accept=".ttf,.otf,.woff,.woff2" hidden>
+        </div>
+
+        <div class="row gap-sm wrap">
+          <div class="seg" role="group" aria-label="Emphasis">
+            <button type="button" class="seg-btn" id="boldBtn" aria-pressed="false" title="Bold"><b>B</b></button>
+            <button type="button" class="seg-btn" id="italicBtn" aria-pressed="false" title="Italic"><i class="serif-i">I</i></button>
+          </div>
+          <div class="seg" role="group" aria-label="Alignment" id="alignGroup">
+            <button type="button" class="seg-btn" data-align="left" title="Align left"><svg class="ic"><use href="#i-al-left"/></svg></button>
+            <button type="button" class="seg-btn" data-align="center" title="Align center"><svg class="ic"><use href="#i-al-center"/></svg></button>
+            <button type="button" class="seg-btn" data-align="right" title="Align right"><svg class="ic"><use href="#i-al-right"/></svg></button>
+          </div>
+          <div class="seg" role="group" aria-label="Text direction" id="dirGroup">
+            <button type="button" class="seg-btn seg-text" data-dir="auto" title="Detect from each name">Auto</button>
+            <button type="button" class="seg-btn seg-text" data-dir="ltr" title="Left to right">LTR</button>
+            <button type="button" class="seg-btn seg-text" data-dir="rtl" title="Right to left">RTL</button>
+          </div>
+        </div>
+
+        <label class="field">
+          <span class="field-label">Size <output id="sizeOut"></output></span>
+          <input type="range" id="sizeRange" min="1" max="30" step="0.1">
+        </label>
+
+        <div class="field">
+          <span class="field-label">Color</span>
+          <div class="row gap-sm wrap">
+            <label class="color-well" title="Pick a color"><input type="color" id="colorInput" aria-label="Text color"></label>
+            <input type="text" id="colorHex" class="hex" maxlength="7" spellcheck="false" aria-label="Hex color">
+            <div class="swatches" id="swatches"></div>
+          </div>
+        </div>
+
+        <div class="row gap-sm two-col">
+          <label class="field">
+            <span class="field-label">Case</span>
+            <select id="textCase">
+              <option value="none">As typed</option>
+              <option value="upper">UPPERCASE</option>
+              <option value="title">Title Case</option>
+            </select>
+          </label>
+          <label class="field" id="spacingField">
+            <span class="field-label">Tracking <output id="spacingOut"></output></span>
+            <input type="range" id="spacingRange" min="-0.05" max="0.4" step="0.01">
+          </label>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" id="autoFit">
+          <span>Shrink long names to fit the box</span>
+        </label>
+
+        <div class="field">
+          <span class="field-label">Position <small>(% of template)</small></span>
+          <div class="row gap-sm">
+            <label class="mini"><span>X</span><input type="number" id="posX" step="0.1" min="0" max="100"></label>
+            <label class="mini"><span>Y</span><input type="number" id="posY" step="0.1" min="0" max="100"></label>
+            <label class="mini"><span>W</span><input type="number" id="posW" step="0.1" min="3" max="100"></label>
+            <button type="button" class="btn btn-icon" id="centerBtn" title="Center horizontally" aria-label="Center horizontally"><svg class="ic"><use href="#i-center"/></svg></button>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <section class="workspace" aria-label="Preview">
+      <div class="stage-toolbar">
+        <div class="pager">
+          <button type="button" class="btn btn-icon" id="prevName" aria-label="Previous name"><svg class="ic"><use href="#i-left"/></svg></button>
+          <div class="pager-label">
+            <span class="pager-name" id="pagerName" dir="auto">Recipient Name</span>
+            <span class="pager-count" id="pagerCount">Sample text</span>
+          </div>
+          <button type="button" class="btn btn-icon" id="nextName" aria-label="Next name"><svg class="ic"><use href="#i-right"/></svg></button>
+        </div>
+        <button type="button" class="btn btn-sm btn-quiet" id="toggleBox" aria-pressed="true" title="Show or hide the name box"><svg class="ic"><use href="#i-eye"/></svg><span>Guides</span></button>
+      </div>
+
+      <div class="stage" id="stage">
+        <div class="stage-empty" id="stageEmpty">
+          <div class="empty-card">
+            <div class="empty-sheet" aria-hidden="true"><span></span><span></span><span></span></div>
+            <h1>Drop your certificate template here</h1>
+            <p>Image or PDF. It stays on this computer — nothing is uploaded.</p>
+            <div class="row gap-sm center">
+              <button type="button" class="btn btn-primary" id="chooseTemplate2"><svg class="ic"><use href="#i-upload"/></svg>Choose file</button>
+              <button type="button" class="btn" id="useSample2">Use sample design</button>
+            </div>
+          </div>
+        </div>
+        <div class="canvas-wrap" id="canvasWrap" hidden>
+          <canvas id="preview"></canvas>
+          <div class="guide guide-v" id="guideV"></div>
+          <div class="guide guide-h" id="guideH"></div>
+          <div class="name-box" id="nameBox" tabindex="0" role="slider" aria-label="Name position. Drag, or use arrow keys to move.">
+            <span class="name-box-tag">Name</span>
+            <span class="handle handle-l" data-handle="l" title="Drag to resize width"></span>
+            <span class="handle handle-r" data-handle="r" title="Drag to resize width"></span>
+            <span class="handle handle-size" data-handle="size" title="Drag to change size"></span>
+          </div>
+        </div>
+        <div class="stage-busy" id="stageBusy" hidden><span class="spinner"></span><span id="stageBusyText">Opening template…</span></div>
+        <div class="drop-veil" id="dropVeil" hidden><span>Release to use as template</span></div>
+      </div>
+
+      <footer class="export-bar">
+        <div class="row gap-sm wrap">
+          <div class="seg" role="radiogroup" aria-label="File format" id="formatGroup">
+            <button type="button" class="seg-btn seg-text" data-format="pdf" role="radio">PDF</button>
+            <button type="button" class="seg-btn seg-text" data-format="png" role="radio">PNG</button>
+            <button type="button" class="seg-btn seg-text" data-format="jpg" role="radio">JPG</button>
+          </div>
+          <label class="check check-inline"><input type="checkbox" id="numbered"><span>Number file names</span></label>
+        </div>
+        <div class="row gap-sm wrap export-actions">
+          <button type="button" class="btn" id="dlCurrent"><svg class="ic"><use href="#i-download"/></svg>This certificate</button>
+          <button type="button" class="btn" id="dlCombined"><svg class="ic"><use href="#i-stack"/></svg>All in one PDF</button>
+          <button type="button" class="btn btn-primary" id="dlZip"><svg class="ic"><use href="#i-download"/></svg><span id="dlZipLabel">Download all (ZIP)</span></button>
+        </div>
+      </footer>
+    </section>
+  </main>
+
+  <dialog id="importDialog" class="dialog">
+    <form method="dialog">
+      <h2>Import names</h2>
+      <p class="muted" id="importFile"></p>
+      <div class="row gap-sm two-col">
+        <label class="field"><span class="field-label">Sheet</span><select id="importSheet"></select></label>
+        <label class="field"><span class="field-label">Column with names</span><select id="importColumn"></select></label>
+      </div>
+      <label class="check"><input type="checkbox" id="importHeader"><span>First row is a header</span></label>
+      <div class="import-preview">
+        <div class="field-label">Preview <span id="importCount" class="muted"></span></div>
+        <ol id="importPreview"></ol>
+      </div>
+      <menu class="dialog-actions">
+        <button class="btn btn-quiet" value="cancel">Cancel</button>
+        <button class="btn" value="append" id="importAppend">Add to list</button>
+        <button class="btn btn-primary" value="replace" id="importReplace">Replace list</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="progressDialog" class="dialog dialog-progress">
+    <h2 id="progressTitle">Generating certificates</h2>
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+    <p class="progress-text"><span id="progressCount"></span> <span id="progressName" dir="auto"></span></p>
+    <menu class="dialog-actions"><button type="button" class="btn" id="progressCancel">Cancel</button></menu>
+  </dialog>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
